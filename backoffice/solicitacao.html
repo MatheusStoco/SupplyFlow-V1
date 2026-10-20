@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detalhe · SupplyFlow</title>
+  <link rel="icon" href="../static/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../static/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="../static/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../static/css/supplyflow.css">
+</head>
+<body data-pagina="solicitacao" data-menu="solicitacoes" data-trilha="Detalhe">
+  <div class="app">
+
+    <!-- Barra lateral: preenchida pelo backoffice.js -->
+    <div class="sidebar-trilho">
+      <aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menu"></aside>
+    </div>
+
+    <div class="app__principal">
+      <!-- Topo: preenchido pelo backoffice.js -->
+      <header class="topbar" id="topbar"></header>
+
+      <main class="conteudo">
+        <a class="link-voltar" href="solicitacoes.html"><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar para solicitações</a>
+
+        <!-- Mostrado quando o id do endereço não existe -->
+        <section class="cartao vazio d-none" id="nao-encontrada">
+          <span class="vazio__icone tom-ambar" aria-hidden="true"><i class="bi bi-search"></i></span>
+          <h1>Solicitação não encontrada</h1>
+          <p id="nao-encontrada-texto">O endereço aberto não corresponde a nenhuma solicitação.</p>
+          <a class="btn btn-primary mt-2" href="solicitacoes.html">Ver todas as solicitações</a>
+        </section>
+
+        <div id="conteudo-detalhe" class="d-none">
+          <div class="detalhe__cabecalho">
+            <h1 class="pagina-titulo mb-0">Solicitação <span id="det-codigo"></span></h1>
+            <span id="det-status" class="selo"></span>
+          </div>
+          <p class="pagina-descricao"><span id="det-motivo"></span> · <span id="det-data-hora"></span></p>
+
+          <div class="detalhe">
+            <!-- ================= Coluna esquerda ================= -->
+            <div class="detalhe__coluna">
+              <section class="cartao" aria-labelledby="t-func">
+                <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-func">Dados do funcionário</h2></div>
+                <dl class="dados cartao__corpo mb-0" id="dados-funcionario"></dl>
+                <p class="cartao__corpo pt-0 mb-0"><a class="link-ver-todas" id="link-ficha" href="#">Ver ficha de EPI completa →</a></p>
+              </section>
+
+              <section class="cartao" aria-labelledby="t-prod">
+                <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-prod">Produto solicitado</h2></div>
+                <div class="cartao__corpo">
+                  <p class="produto-resumo"><strong id="det-prod-nome"></strong> <span class="selo selo--neutro" id="det-prod-tipo"></span></p>
+                  <dl class="dados" id="dados-produto"></dl>
+                </div>
+              </section>
+
+              <section class="cartao" aria-labelledby="t-regra">
+                <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-regra">Regra de fornecimento</h2></div>
+                <dl class="dados cartao__corpo" id="dados-regra"></dl>
+              </section>
+
+              <section class="cartao" aria-labelledby="t-hist">
+                <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-hist">Histórico de entregas deste item</h2></div>
+                <div class="cartao__corpo"><ul class="lista-solicitacoes" id="det-historico"></ul></div>
+              </section>
+            </div>
+
+            <!-- ================= Coluna direita ================= -->
+            <div class="detalhe__coluna">
+              <section class="cartao" aria-labelledby="t-just">
+                <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-just">Justificativa do funcionário</h2></div>
+                <div class="cartao__corpo"><blockquote class="citacao" id="det-justificativa"></blockquote></div>
+              </section>
+
+              <section class="cartao cartao--ia" aria-labelledby="t-ia" id="cartao-ia">
+                <div class="cartao__cabecalho">
+                  <i class="bi bi-stars" aria-hidden="true"></i>
+                  <h2 class="cartao__titulo" id="t-ia">Análise da IA</h2>
+                  <span class="cartao__aviso">Apoio à decisão — não aprova automaticamente</span>
+                </div>
+                <div class="cartao__corpo">
+                  <div class="ia-resumo">
+                    <div><span class="ia-resumo__rotulo">Categoria sugerida</span><strong id="ia-categoria"></strong></div>
+                    <div><span class="ia-resumo__rotulo">Confiança</span><strong id="ia-confianca"></strong></div>
+                  </div>
+                  <p class="ia-fonte" id="ia-fonte"></p>
+                  <div id="bloco-reclassificar">
+                    <label for="reclassificar" class="form-label fw-semibold">Reclassificar (opcional)</label>
+                    <select id="reclassificar" class="form-select" aria-describedby="ajuda-reclassificar"></select>
+                    <div class="form-text" id="ajuda-reclassificar">A categoria confirmada por você fica registrada ao lado da sugerida pela IA (auditoria e retreino do modelo).</div>
+                  </div>
+                  <dl class="dados mt-2 d-none" id="ia-categorias-decisao"></dl>
+                </div>
+              </section>
+
+              <section class="cartao" aria-labelledby="t-dec">
+                <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dec">Decisão</h2></div>
+                <div class="cartao__corpo">
+                  <!-- Formulário: só aparece enquanto a solicitação aguarda decisão e o perfil pode decidir -->
+                  <form id="form-decisao" class="d-none" novalidate>
+                    <div class="opcao-condicao">
+                      <input class="form-check-input" type="checkbox" id="exigir-devolucao" aria-describedby="ajuda-devolucao">
+                      <div>
+                        <label for="exigir-devolucao" class="fw-semibold">Exigir devolução do EPI anteriormente fornecido</label>
+                        <div class="form-text mt-0" id="ajuda-devolucao">O funcionário deverá devolver o EPI antigo ao almoxarifado antes da retirada.</div>
+                      </div>
+                    </div>
+                    <label for="observacao" class="form-label fw-semibold mt-3">Observação</label>
+                    <textarea id="observacao" class="form-control" rows="3"
+                              placeholder="Ex.: Substituição autorizada mediante devolução da luva danificada ao almoxarifado."></textarea>
+                    <div class="invalid-feedback d-block" id="erro-decisao" role="alert" aria-live="assertive"></div>
+
+                    <div class="decisao__acoes">
+                      <button type="button" class="btn btn-decisao btn-decisao--rejeitar" data-decisao="rejeitar">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i> Rejeitar
+                      </button>
+                      <button type="button" class="btn btn-decisao btn-decisao--aprovar" data-decisao="aprovar">
+                        <i class="bi bi-check-circle" aria-hidden="true"></i> Aprovar
+                      </button>
+                      <button type="button" class="btn btn-decisao btn-decisao--condicao" data-decisao="aprovar_condicao">
+                        <i class="bi bi-exclamation-circle" aria-hidden="true"></i> Aprovar com condição
+                      </button>
+                    </div>
+                  </form>
+
+                  <!-- Resultado: aparece quando já existe decisão -->
+                  <div id="decisao-tomada" class="d-none" role="status" aria-live="polite" tabindex="-1"></div>
+                  <p id="sem-permissao" class="text-muted d-none mb-0">Seu perfil pode consultar, mas não decidir solicitações.</p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+  </div>
+
+  <script src="../static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="../static/js/menu.js"></script>
+  <script src="../static/js/api.js"></script>
+  <script src="../static/js/sessao.js"></script>
+  <script src="../static/js/backoffice.js"></script>
+  <script src="../static/js/solicitacao-detalhe.js"></script>
+</body>
+</html>

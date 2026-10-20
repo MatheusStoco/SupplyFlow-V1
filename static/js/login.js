@@ -1,44 +1,53 @@
 /* =====================================================================
-   SupplyFlow — tela de login (fictícia)
-   Monta os cartões de usuário e, ao clicar em Entrar, vai direto para
-   o backoffice. Nada é validado: é só para navegar pelas telas.
+   SupplyFlow — tela de login
+   Envia e-mail + senha para /api/login/. O servidor confere a senha,
+   abre a sessão e devolve os dados de exibição do usuário.
    ===================================================================== */
 
 (function () {
-  var lista = document.getElementById("lista-usuarios");
   var formulario = document.getElementById("form-login");
+  var campoEmail = document.getElementById("email");
+  var campoSenha = document.getElementById("senha");
+  var caixaErro = document.getElementById("login-erro");
+  var botao = document.getElementById("btn-entrar");
 
-  /* 1. Cria um cartão (rádio) para cada usuário de demonstração */
-  SF.usuarios.forEach(function (usuario) {
-    var rotulo = document.createElement("label");
-    rotulo.className = "usuario";
+  function mostrarErro(mensagem) {
+    caixaErro.textContent = mensagem;
+    caixaErro.classList.remove("d-none");
+    campoSenha.setAttribute("aria-invalid", "true");
+    campoSenha.value = "";
+    campoSenha.focus();
+  }
 
-    rotulo.innerHTML =
-      '<span class="usuario__avatar" aria-hidden="true">' + usuario.iniciais + "</span>" +
-      '<span class="usuario__texto">' +
-        '<span class="usuario__nome">' + usuario.nome + "</span>" +
-        '<span class="usuario__detalhe">' + usuario.perfil + " · Matrícula " + usuario.matricula + "</span>" +
-      "</span>";
+  /* Só aceita voltar para páginas do próprio sistema (evita redirecionar para outro site) */
+  function destinoSeguro() {
+    var proximo = new URLSearchParams(window.location.search).get("proximo") || "";
+    return /^\/backoffice\/[a-z0-9-]+\.html(\?[^#]*)?$/i.test(proximo) ? proximo : "/backoffice/visao-geral.html";
+  }
 
-    var radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = "usuario";
-    radio.value = usuario.id;
-    radio.className = "form-check-input";
-    radio.checked = usuario.id === SF.usuarioPadrao;
-    radio.setAttribute("aria-label", usuario.nome + ", " + usuario.perfil);
-
-    rotulo.appendChild(radio);
-    lista.appendChild(rotulo);
-  });
-
-  /* 2. Entrar: guarda o usuário escolhido e abre o backoffice */
   formulario.addEventListener("submit", function (evento) {
     evento.preventDefault();
+    caixaErro.classList.add("d-none");
+    campoSenha.removeAttribute("aria-invalid");
 
-    var escolhido = formulario.querySelector('input[name="usuario"]:checked');
-    SF.sessao.iniciar(escolhido ? escolhido.value : SF.usuarioPadrao);
+    var email = campoEmail.value.trim();
+    var senha = campoSenha.value;
+    if (!email || !senha) {
+      mostrarErro("Informe e-mail e senha.");
+      return;
+    }
 
-    window.location.href = "backoffice/visao-geral.html";
+    botao.disabled = true;
+    SF.api.post("/api/login/", { email: email, senha: senha }, { semRedirecionar: true })
+      .then(function (resposta) {
+        SF.sessao.iniciar(resposta.usuario);
+        window.location.href = destinoSeguro();
+      })
+      .catch(function (erro) {
+        mostrarErro(erro.message);
+      })
+      .finally(function () {
+        botao.disabled = false;
+      });
   });
 })();

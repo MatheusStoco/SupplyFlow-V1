@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entregas · SupplyFlow</title>
+  <link rel="icon" href="../static/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../static/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="../static/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../static/css/supplyflow.css">
+</head>
+<body data-pagina="entregas">
+  <div class="app">
+
+    <div class="sidebar-trilho">
+      <aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menu"></aside>
+    </div>
+
+    <div class="app__principal">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="conteudo">
+        <h1 class="pagina-titulo">Entregas</h1>
+        <p class="pagina-descricao">Solicitações aprovadas aguardando a retirada física e o registro das entregas confirmadas pelo almoxarifado.</p>
+
+        <div class="alert d-none" role="status" id="aviso-entregas"></div>
+
+        <section class="cartao mb-4" aria-labelledby="t-pendentes">
+          <div class="cartao__cabecalho">
+            <h2 class="cartao__titulo" id="t-pendentes">Aguardando retirada</h2>
+            <span class="cartao__meta" id="meta-pendentes"></span>
+          </div>
+          <div class="table-responsive" tabindex="0" role="region" aria-labelledby="t-pendentes">
+            <table class="tabela-solicitacoes">
+              <thead>
+                <tr>
+                  <th scope="col">Solicitação</th>
+                  <th scope="col">Solicitada em</th>
+                  <th scope="col">Colaborador</th>
+                  <th scope="col">Produto</th>
+                  <th scope="col">Qtd.</th>
+                  <th scope="col">Situação</th>
+                  <th scope="col" class="tabela-solicitacoes__acao">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="corpo-pendentes"><tr><td colspan="7" class="tabela-solicitacoes__vazio">Carregando…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="cartao" aria-labelledby="t-confirmadas">
+          <div class="cartao__cabecalho">
+            <h2 class="cartao__titulo" id="t-confirmadas">Entregas confirmadas</h2>
+            <span class="cartao__meta">Dados gravados no momento da entrega</span>
+          </div>
+          <div class="table-responsive" tabindex="0" role="region" aria-labelledby="t-confirmadas">
+            <table class="tabela-solicitacoes">
+              <thead>
+                <tr>
+                  <th scope="col">Data</th>
+                  <th scope="col">Solicitação</th>
+                  <th scope="col">Colaborador</th>
+                  <th scope="col">Centro de custo</th>
+                  <th scope="col">Produto</th>
+                  <th scope="col">Qtd.</th>
+                  <th scope="col">CA</th>
+                  <th scope="col">Lote</th>
+                  <th scope="col">Almoxarife</th>
+                </tr>
+              </thead>
+              <tbody id="corpo-confirmadas"><tr><td colspan="9" class="tabela-solicitacoes__vazio">Carregando…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+  </div>
+
+  <script src="../static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="../static/js/menu.js"></script>
+  <script src="../static/js/api.js"></script>
+  <script src="../static/js/sessao.js"></script>
+  <script src="../static/js/backoffice.js"></script>
+  <script src="../static/js/entregas.js"></script>
+</body>
+</html>
